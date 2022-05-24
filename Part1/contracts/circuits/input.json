@@ -1,0 +1,13 @@
+{
+    "pubGuessA": 1,
+    "pubGuessB": 2,
+    "pubGuessC": 3,
+    "pubNumBlacks": 3,
+    "pubNumWhites": 0,
+    "pubSolnHash": 123,
+    "privSolnA": 1,
+    "privSolnB": 2,
+    "privSolnC": 3,
+    "privSalt": 99,
+    "solnHashOut": 123
+}

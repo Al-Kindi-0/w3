@@ -1,7 +1,7 @@
 //[assignment] write your own unit test to show that your Mastermind variation circuit is working as expected
 const chai = require("chai");
 const path = require("path");
-
+const buildPoseidon = require("circomlibjs").buildPoseidon;
 const wasm_tester = require("circom_tester").wasm;
 
 const F1Field = require("ffjavascript").F1Field;
@@ -25,29 +25,29 @@ describe("Master mind for kids test", function () {
         await circuit.loadConstraints();
 
         // Player1 Solution & SolutionHash
-        const solution1 = [1,1,3];
-        const salt1 = ethers.BigNumber.from(ethers.utils.randomBytes(55));
+        const solution1 = [1, 2, 3];
+        const salt1 = ethers.BigNumber.from(55);
         const solutionHash1 = ethers.BigNumber.from(
             poseidonJs.F.toObject(poseidonJs([salt1, ...solution1]))
         );
+        console.log(solutionHash1);
         const INPUT = {
             "pubGuessA": "1",
-            "pubGuessB": "1",
+            "pubGuessB": "2",
             "pubGuessC": "3",
             "pubNumBlacks": "3",
             "pubNumWhites": "0",
             "pubSolnHash": solutionHash1,
             "privSolnA": "1",
-            "privSolnB": "1",
+            "privSolnB": "2",
             "privSolnC": "3",
             "privSalt": "55"
         }
 
         const witness = await circuit.calculateWitness(INPUT, true);
 
-        console.log(witness);
+        //console.log(witness);
 
-        assert(Fr.eq(Fr.e(witness[0]), Fr.e(1)));
-        assert(Fr.eq(Fr.e(witness[1]), Fr.e(1)));
+        
     });
 });

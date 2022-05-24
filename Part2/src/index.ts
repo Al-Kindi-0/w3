@@ -2,6 +2,7 @@ import assert from 'assert';
 import * as crypto from 'crypto';
 import * as ethers from 'ethers';
 import { buildBabyjub, buildMimc7, buildEddsa } from 'circomlibjs';
+import { SourceCode } from 'eslint';
 
 const createBlakeHash = require('blake-hash');
 
@@ -229,6 +230,19 @@ const genEcdhSharedKey = async ({
   )[0];
 };
 
+// source https://coolaj86.com/articles/convert-js-bigints-to-typedarrays/
+function bufToBn(buf) {
+  let hex: string[] = [];
+  let u8 = Uint8Array.from(buf);
+
+  u8.forEach(function (i) {
+    let h = i.toString(16);
+    if (h.length % 2) { h = '0' + h; }
+    hex.push(h);
+  });
+
+  return BigInt('0x' + hex.join(''));
+}
 /*
  * Encrypts a plaintext using a given key.
  * @return The ciphertext.
@@ -240,20 +254,20 @@ const encrypt = async (
   const mimc7 = await buildMimc7();
   // [assignment] generate the IV, use Mimc7 to hash the shared key with the IV, then encrypt the plain text
 
-  const iv = mimc7.multiHash(plaintext, BigInt(0))
+  const iv = bufToBn(mimc7.multiHash(plaintext, BigInt(0)))
 
-    const ciphertext: Ciphertext = {
-        iv,
-        data: plaintext.map((e: BigInt, i: number) => {
-            return e + mimc7.hash(
-                sharedKey,
-                iv + BigInt(i),
-            )
-        }),
-    }
+  const ciphertext: Ciphertext = {
+    iv,
+    data: plaintext.map((e: bigint, i: number) => {
+      return BigInt(e) + bufToBn(mimc7.hash(
+        sharedKey,
+        iv + BigInt(i),
+      ))
+    }),
+  }
 
-    // TODO: add asserts here
-    return ciphertext
+  // TODO: add asserts here
+  return ciphertext
 };
 
 /*
@@ -267,12 +281,12 @@ const decrypt = async (
   // [assignment] use Mimc7 to hash the shared key with the IV, then descrypt the ciphertext
   const mimc7 = await buildMimc7();
   const plaintext = ciphertext.data.map(
-        (e, i) => {
-            return BigInt(e) - BigInt(mimc7.hash(sharedKey, BigInt(ciphertext.iv) + BigInt(i)))
-        }
-    )
+    (e: bigint, i: number) => {
+      return BigInt(e) - bufToBn(mimc7.hash(sharedKey, BigInt(ciphertext.iv) + BigInt(i)))
+    }
+  )
 
-    return plaintext
+  return plaintext
 };
 
 export {

@@ -42,17 +42,17 @@ template MastermindVariation() {
         for (k=0; k<3; k++) {
             // the && operator doesn't work
             equalNb[3*j + k] = IsEqual();
-            equalNb[3*j + k].in[0] <== guess[j];
-            equalNb[3*j + k].in[1] <== soln[j];
+            equalNb[3*j + k].in[0] <== soln[j];
+            equalNb[3*j + k].in[1] <== guess[k];
             nw += equalNb[3*j + k].out;
             if (j == k) {
-                nw -= equalNb[3*j + k].out;
                 nb += equalNb[3*j + k].out;
+                nw -= equalNb[3*j + k].out;
+                
             }
         }
     }
 
-     //nb === pubNumBlacks ;
     // Create a constraint around the number of black pegs
     component equalBlack = IsEqual();
     equalBlack.in[0] <== pubNumBlacks;
@@ -64,6 +64,7 @@ template MastermindVariation() {
     equalWhite.in[0] <== pubNumWhites;
     equalWhite.in[1] <== nw;
     equalWhite.out === 1;
+
 
     // Verify that the hash of the private solution matches pubSolnHash
     // via a constraint that the publicly declared solution hash matches the
@@ -79,4 +80,4 @@ template MastermindVariation() {
     pubSolnHash === solnHashOut;
 }
 
-component main = MastermindVariation();
+component main{public [pubGuessA,pubGuessB,pubGuessC,pubNumBlacks,pubNumWhites,pubSolnHash]} = MastermindVariation();
